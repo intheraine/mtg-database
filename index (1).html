@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>MTG NFC – Quick Access (Screen Reader Friendly)</title>
+    <meta
+      name="description"
+      content="Simple, high-contrast, keyboard-first MTG NFC card viewer optimized for screen readers and fast access during games."
+    />
+    <meta name="theme-color" content="#000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="wrap" role="application" aria-label="MTG NFC quick viewer">
+      <h1>MTG NFC – Quick Access</h1>
+      <p class="lead">
+        Optimized for screen readers and fast use at the table. Type an ID (e.g., PIR-001) or part
+        of a name, then press Enter.
+      </p>
+
+      <label for="search">Find card by ID or name</label>
+      <input
+        id="search"
+        type="search"
+        inputmode="search"
+        placeholder="Type PIR-001 or 'Schooner' and press Enter"
+        aria-describedby="searchHint"
+      />
+
+      <div id="searchHint" class="sr-only">
+        Press Enter to select. Use Arrow Left/Right to move between results. Press C to copy URL,
+        O to open URL in a new tab. Press / to focus search.
+      </div>
+
+      <div class="controls" aria-hidden="false">
+        <button id="cameraBtn" class="primary" title="Take or upload card photo">📷 Scan Card</button>
+        <button id="prevBtn" title="Previous card (Left arrow or P)">Previous</button>
+        <button id="nextBtn" title="Next card (Right arrow or N)">Next</button>
+        <button id="copyBtn" class="primary" title="Copy NFC URL (C)">Copy URL</button>
+        <button id="openBtn" title="Open NFC URL (O)">Open</button>
+        <button id="listBtn" title="List all card IDs for quick navigation">List IDs</button>
+      </div>
+
+      <div
+        id="card"
+        class="card-region"
+        role="region"
+        aria-live="polite"
+        aria-atomic="true"
+        tabindex="-1"
+      >
+        <div id="cardName" class="card-line meta">No card selected</div>
+        <div id="cardType" class="card-line small"></div>
+        <div id="cardCost" class="card-line small"></div>
+        <div id="cardText" class="card-line"></div>
+        <div id="cardStats" class="card-line meta"></div>
+        <div id="cardUrl" class="sr-only" aria-hidden="false"></div>
+      </div>
+
+      <div id="idList" class="sr-only" aria-hidden="true"></div>
+
+      <div class="key-help">
+        Keyboard shortcuts: / focus search · Enter select · ← / P previous · → / N next · C copy
+        URL · O open URL · L list IDs
+      </div>
+
+      <footer>
+        Tip: Save this page to your home screen or use a browser bookmark for fastest access
+        during games.
+      </footer>
+
+      <div id="announcer" class="sr-only" aria-live="polite"></div>
+
+      <!-- Camera Modal -->
+      <div id="cameraModal" class="modal" aria-labelledby="cameraModalTitle" aria-hidden="true">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 id="cameraModalTitle">Scan Magic Card</h2>
+            <button id="cameraModalClose" class="modal-close" aria-label="Close camera modal">×</button>
+          </div>
+          <div class="modal-body">
+            <div id="cameraPreview" class="camera-preview">
+              <video id="videoElement" playsinline></video>
+              <canvas id="canvas" class="sr-only"></canvas>
+            </div>
+            <div class="camera-controls">
+              <button id="captureBtn" class="primary" title="Capture photo">📸 Capture</button>
+              <button id="uploadBtn" title="Upload from device">📁 Upload</button>
+              <input id="fileInput" type="file" accept="image/*" class="sr-only" />
+            </div>
+            <div id="parseStatus" aria-live="polite"></div>
+          </div>
+          <div id="parseResult" class="parse-result" style="display: none;">
+            <h3>Detected Card</h3>
+            <div id="parsedCardInfo"></div>
+            <div class="result-controls">
+              <button id="confirmBtn" class="primary">✓ Add Card</button>
+              <button id="retakeBtn">Retake Photo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+      import { getDatabase } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+      
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDFhyzAg-wR3YdhFleNYSkXObT60x38uF0",
+        authDomain: "gen-lang-client-0464662946.firebaseapp.com",
+        projectId: "gen-lang-client-0464662946",
+        storageBucket: "gen-lang-client-0464662946.firebasestorage.app",
+        messagingSenderId: "737738063256",
+        appId: "1:737738063256:web:6da0e273c93beacb4dbfed",
+        databaseURL: "https://gen-lang-client-0464662946-default-rtdb.firebaseio.com"
+      };
+      
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+      const analytics = getAnalytics(app);
+      
+      // Make Firebase available globally for app.js
+      window.firebaseApp = app;
+      window.firebaseDatabase = database;
+      
+      // Gemini API Configuration
+      window.GEMINI_API_KEY = "AIzaSyDRT_dmJb7b2aRu3gLzOIdFPjkjooUqdXQ";
+      window.GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+    </script>
+
+    <script src="app.js"></script>
+  </body>
+</html>
+</body>
+</html>
