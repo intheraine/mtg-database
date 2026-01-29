@@ -1,307 +1,144 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MTG NFC – Quick Access (Screen Reader Friendly)</title>
-  <meta name="description" content="Simple, high-contrast, keyboard-first MTG NFC card viewer optimized for screen readers and fast access during games." />
-  <style>
-    /* Minimal, high-contrast, large text for readability */
-    :root{--bg:#000;--fg:#fff;--muted:#cbd5e1;--accent:#0ea5a4}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;line-height:1.4}
-    .wrap{max-width:900px;margin:12px auto;padding:12px}
-    h1{font-size:1.6rem;margin:0 0 8px}
-    p.lead{color:var(--muted);margin:0 0 12px}
-    label{display:block;margin:10px 0 6px;font-weight:600}
-    input[type="search"]{width:100%;padding:10px;font-size:1.05rem;border-radius:6px;border:2px solid #333;background:#050505;color:var(--fg)}
-    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    button{background:#111;color:var(--fg);border:2px solid #333;padding:8px 12px;border-radius:6px;font-size:1rem;cursor:pointer}
-    button.primary{background:var(--accent);color:#000;border:none}
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-    .card-region{margin-top:14px;padding:12px;border-radius:8px;background:#050505;border:2px solid #222}
-    .card-line{margin:6px 0;font-size:1.05rem}
-    .meta{color:var(--muted);font-size:0.95rem}
-    .small{font-size:0.95rem}
-    .key-help{margin-top:10px;color:var(--muted);font-size:0.9rem}
-    footer{margin-top:18px;color:var(--muted);font-size:0.9rem}
-    button:focus,input:focus{outline:3px solid #fff;outline-offset:2px}
-  </style>
-</head>
-<body>
-  <div class="wrap" role="application" aria-label="MTG NFC quick viewer">
-    <h1>MTG NFC – Quick Access</h1>
-    <p class="lead">Optimized for screen readers and fast use at the table. Type an ID (e.g., PIR-001) or part of a name, then press Enter.</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>MTG NFC – Quick Access (Screen Reader Friendly)</title>
+    <meta
+      name="description"
+      content="Simple, high-contrast, keyboard-first MTG NFC card viewer optimized for screen readers and fast access during games."
+    />
+    <meta name="theme-color" content="#000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="wrap" role="application" aria-label="MTG NFC quick viewer">
+      <h1>MTG NFC – Quick Access</h1>
+      <p class="lead">
+        Optimized for screen readers and fast use at the table. Type an ID (e.g., PIR-001) or part
+        of a name, then press Enter.
+      </p>
 
-    <label for="search">Find card by ID or name</label>
-    <input id="search" type="search" inputmode="search" placeholder="Type PIR-001 or 'Schooner' and press Enter" aria-describedby="searchHint" />
+      <label for="search">Find card by ID or name</label>
+      <input
+        id="search"
+        type="search"
+        inputmode="search"
+        placeholder="Type PIR-001 or 'Schooner' and press Enter"
+        aria-describedby="searchHint"
+      />
 
-    <div id="searchHint" class="sr-only">Press Enter to select. Use Arrow Left/Right to move between results. Press C to copy URL, O to open URL in a new tab. Press / to focus search.</div>
+      <div id="searchHint" class="sr-only">
+        Press Enter to select. Use Arrow Left/Right to move between results. Press C to copy URL,
+        O to open URL in a new tab. Press / to focus search.
+      </div>
 
-    <div class="controls" aria-hidden="false">
-      <button id="prevBtn" title="Previous card (Left arrow or P)">Previous</button>
-      <button id="nextBtn" title="Next card (Right arrow or N)">Next</button>
-      <button id="copyBtn" class="primary" title="Copy NFC URL (C)">Copy URL</button>
-      <button id="openBtn" title="Open NFC URL (O)">Open</button>
-      <button id="listBtn" title="List all card IDs for quick navigation">List IDs</button>
+      <div class="controls" aria-hidden="false">
+        <button id="cameraBtn" class="primary" title="Take or upload card photo">📷 Scan Card</button>
+        <button id="prevBtn" title="Previous card (Left arrow or P)">Previous</button>
+        <button id="nextBtn" title="Next card (Right arrow or N)">Next</button>
+        <button id="copyBtn" class="primary" title="Copy NFC URL (C)">Copy URL</button>
+        <button id="openBtn" title="Open NFC URL (O)">Open</button>
+        <button id="listBtn" title="List all card IDs for quick navigation">List IDs</button>
+      </div>
+
+      <div
+        id="card"
+        class="card-region"
+        role="region"
+        aria-live="polite"
+        aria-atomic="true"
+        tabindex="-1"
+      >
+        <div id="cardName" class="card-line meta">No card selected</div>
+        <div id="cardType" class="card-line small"></div>
+        <div id="cardCost" class="card-line small"></div>
+        <div id="cardText" class="card-line"></div>
+        <div id="cardStats" class="card-line meta"></div>
+        <div id="cardUrl" class="sr-only" aria-hidden="false"></div>
+      </div>
+
+      <div id="idList" class="sr-only" aria-hidden="true"></div>
+
+      <div class="key-help">
+        Keyboard shortcuts: / focus search · Enter select · ← / P previous · → / N next · C copy
+        URL · O open URL · L list IDs
+      </div>
+
+      <footer>
+        Tip: Save this page to your home screen or use a browser bookmark for fastest access
+        during games.
+      </footer>
+
+      <div id="announcer" class="sr-only" aria-live="polite"></div>
+
+      <!-- Camera Modal -->
+      <div id="cameraModal" class="modal" aria-labelledby="cameraModalTitle" aria-hidden="true">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 id="cameraModalTitle">Scan Magic Card</h2>
+            <button id="cameraModalClose" class="modal-close" aria-label="Close camera modal">×</button>
+          </div>
+          <div class="modal-body">
+            <div id="cameraPreview" class="camera-preview">
+              <video id="videoElement" playsinline></video>
+              <canvas id="canvas" class="sr-only"></canvas>
+            </div>
+            <div class="camera-controls">
+              <button id="captureBtn" class="primary" title="Capture photo">📸 Capture</button>
+              <button id="uploadBtn" title="Upload from device">📁 Upload</button>
+              <input id="fileInput" type="file" accept="image/*" class="sr-only" />
+            </div>
+            <div id="parseStatus" class="sr-only" aria-live="polite"></div>
+          </div>
+          <div id="parseResult" class="parse-result" style="display: none;">
+            <h3>Detected Card</h3>
+            <div id="parsedCardInfo"></div>
+            <div class="result-controls">
+              <button id="confirmBtn" class="primary">✓ Add Card</button>
+              <button id="retakeBtn">Retake Photo</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div id="card" class="card-region" role="region" aria-live="polite" aria-atomic="true" tabindex="-1">
-      <div id="cardName" class="card-line meta">No card selected</div>
-      <div id="cardType" class="card-line small"></div>
-      <div id="cardCost" class="card-line small"></div>
-      <div id="cardText" class="card-line"></div>
-      <div id="cardStats" class="card-line meta"></div>
-      <div id="cardUrl" class="sr-only" aria-hidden="false"></div>
-    </div>
-
-    <div id="idList" class="sr-only" aria-hidden="true"></div>
-
-    <div class="key-help">
-      Keyboard shortcuts: / focus search · Enter select · ← / P previous · → / N next · C copy URL · O open URL · L list IDs
-    </div>
-
-    <footer>
-      Tip: Save this page to your home screen or use a browser bookmark for fastest access during games.
-    </footer>
-
-    <div id="announcer" class="sr-only" aria-live="polite"></div>
-  </div>
-
-  <script>
-    const searchInput = document.getElementById('search');
-    const cardName = document.getElementById('cardName');
-    const cardType = document.getElementById('cardType');
-    const cardText = document.getElementById('cardText');
-    const cardCost = document.getElementById('cardCost');
-    const cardStats = document.getElementById('cardStats');
-    const cardUrlHidden = document.getElementById('cardUrl');
-    const announcer = document.getElementById('announcer');
-    const idListDiv = document.getElementById('idList');
-
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const copyBtn = document.getElementById('copyBtn');
-    const openBtn = document.getElementById('openBtn');
-    const listBtn = document.getElementById('listBtn');
-
-    let cardDatabase = {};
-    let ids = [];
-    let currentIndex = -1;
-
-    const fallback = {
-      "PIR-001": {"id":"PIR-001","name":"Subterranean Schooner","cost":"one generic and one blue","type":"Artifact – Vehicle","text":"Whenever this Vehicle attacks, target creature that crewed it this turn explores. (Reveal the top card of your library. Put that card into your hand if it's a land. Otherwise, put a +1/+1 counter on that creature, then put the card back or put it into your graveyard.) Crew 1","power":"3","toughness":"4"},
-      "PIR-004": {"id":"PIR-004","name":"Inti, Seneschal of the Sun","cost":"one generic and one red","type":"Legendary Creature – Human Knight","text":"Whenever you attack, you may discard a card. When you do, put a +1/+1 counter on target attacking creature. It gains trample until end of turn. Whenever you discard one or more cards, exile the top card of your library. You may play that card until your next end step.","power":"2","toughness":"2"},
-      "PIR-007": {"id":"PIR-007","name":"Gastal Thrillroller","cost":"two generic and one red","type":"Artifact – Vehicle","text":"Trample, haste. When this Vehicle enters, it becomes an artifact creature until end of turn. Crew 2. Two generic and one red, Discard a card: Return this card from your graveyard to the battlefield with a finality counter on it. Activate only as a sorcery.","power":"4","toughness":"2"},
-      "PIR-008": {"id":"PIR-008","name":"Fearless Swashbuckler","cost":"one generic, one blue, and one red","type":"Creature – Fish Pirate","text":"Haste. Vehicles you control have haste. Whenever you attack, if a Pirate and a Vehicle attacked this combat, draw three cards, then discard two cards.","power":"3","toughness":"3"},
-      "PIR-011": {"id":"PIR-011","name":"Captain Howler, Sea Scourge","cost":"two generic, one blue, and one red","type":"Legendary Creature – Shark Pirate","text":"Ward—two generic, Pay 2 life. Whenever you discard one or more cards, target creature gets +2/+0 until end of turn for each card discarded this way. Whenever that creature deals combat damage to a player this turn, you draw a card.","power":"5","toughness":"4"},
-      "PIR-013": {"id":"PIR-013","name":"Spyglass Siren","cost":"one blue","type":"Creature – Siren Pirate","text":"Flying. When this creature enters, create a Map token. (It's an artifact with \"one generic, Tap, Sacrifice this token: Target creature you control explores. Activate only as a sorcery.\")","power":"1","toughness":"1"},
-      "PIR-017": {"id":"PIR-017","name":"Marauding Mako","cost":"one red","type":"Creature – Shark Pirate","text":"Whenever you discard one or more cards, put that many +1/+1 counters on this creature. Cycling two generic (two generic, Discard this card: Draw a card.)","power":"1","toughness":"1"},
-      "PIR-021": {"id":"PIR-021","name":"Scrounging Skyray","cost":"one generic and one blue","type":"Creature – Fish Pirate","text":"Flying. Whenever you discard one or more cards, put that many +1/+1 counters on this creature. Cycling two generic (two generic, Discard this card: Draw a card.)","power":"1","toughness":"2"},
-      "PIR-025": {"id":"PIR-025","name":"Staunch Crewmate","cost":"one generic and one blue","type":"Creature – Human Pirate","text":"When this creature enters, look at the top four cards of your library. You may reveal an artifact or Pirate card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.","power":"2","toughness":"1"},
-      "PIR-027": {"id":"PIR-027","name":"Burst Lightning","cost":"one red","type":"Instant","text":"Kicker four generic (You may pay an additional four generic as you cast this spell.) Burst Lightning deals 2 damage to any target. If this spell was kicked, it deals 4 damage instead.","power":null,"toughness":null},
-      "PIR-031": {"id":"PIR-031","name":"Broadside Barrage","cost":"one generic, one blue, and one red","type":"Instant","text":"Broadside Barrage deals 5 damage to target creature or planeswalker. Draw a card, then discard a card.","power":null,"toughness":null},
-      "PIR-033": {"id":"PIR-033","name":"Spell Snare","cost":"one blue","type":"Instant","text":"Counter target spell with mana value 2.","power":null,"toughness":null},
-      "PIR-035": {"id":"PIR-035","name":"Secluded Courtyard","cost":"","type":"Land","text":"As Secluded Courtyard enters the battlefield, choose a creature type. Tap: Add one colorless. Tap: Add one mana of any color. Spend this mana only to cast a creature spell of the chosen type or activate an ability of a creature or creature card of that type."},
-      "PIR-036": {"id":"PIR-036","name":"Swiftwater Cliffs","cost":"","type":"Land","text":"Swiftwater Cliffs enters tapped. When it enters, you gain 1 life. Tap: Add one blue or one red."},
-      "PIR-037": {"id":"PIR-037","name":"Island","cost":"","type":"Basic Land – Island","text":"(Tap: Add one blue.)"},
-      "PIR-038": {"id":"PIR-038","name":"Mountain","cost":"","type":"Basic Land – Mountain","text":"(Tap: Add one red.)"}
-    };
-
-    async function loadCards() {
-      try {
-        const res = await fetch('cards.json', {cache: "no-store"});
-        if (!res.ok) throw new Error('no cards.json');
-        const data = await res.json();
-        cardDatabase = data;
-      } catch (e) {
-        cardDatabase = fallback;
-      }
-      ids = Object.keys(cardDatabase).sort();
-      idListDiv.textContent = ids.join(' ');
-    }
-
-    function announce(msg) {
-      announcer.textContent = msg;
-    }
-
-    function getCardIdFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('card');
-    }
-
-    function updateUrl(cardId) {
-      const newUrl = `${window.location.pathname}?card=${encodeURIComponent(cardId)}`;
-      window.history.pushState({cardId}, '', newUrl);
-    }
-
-    function showCardByIndex(i) {
-      if (ids.length === 0) {
-        announce('No cards available.');
-        return;
-      }
-      if (i < 0) i = ids.length - 1;
-      if (i >= ids.length) i = 0;
-      currentIndex = i;
-      const id = ids[currentIndex];
-      const card = cardDatabase[id];
-      displayCard(card);
-      updateUrl(id);
-    }
-
-    function displayCard(card) {
-      cardName.textContent = `${card.id} – ${card.name}`;
-      cardType.textContent = card.type || '';
-      cardCost.textContent = card.cost ? `Cost: ${card.cost}` : '';
-      cardText.textContent = card.text || '';
-      if (card.power !== undefined && card.power !== null) {
-        cardStats.textContent = `Power/Toughness: ${card.power}/${card.toughness}`;
-      } else {
-        cardStats.textContent = '';
-      }
-      const origin = (window.location.protocol === 'file:') ? '' : window.location.origin;
-      const base = origin + window.location.pathname;
-      const url = `${base}?card=${encodeURIComponent(card.id)}`;
-      cardUrlHidden.textContent = url;
-      document.title = `${card.name} – MTG NFC`;
-      announce(`${card.name} selected. Press C to copy the URL.`);
-      document.getElementById('card').focus();
-    }
-
-    function selectByQuery(q) {
-      if (!q) return;
-      const trimmed = q.trim();
-      if (!trimmed) return;
-      const upper = trimmed.toUpperCase();
-      const direct = ids.find(id => id.toUpperCase() === upper);
-      if (direct) {
-        currentIndex = ids.indexOf(direct);
-        showCardByIndex(currentIndex);
-        return;
-      }
-      const found = ids.find(id => {
-        const c = cardDatabase[id];
-        return c.name && c.name.toLowerCase().includes(trimmed.toLowerCase());
-      });
-      if (found) {
-        currentIndex = ids.indexOf(found);
-        showCardByIndex(currentIndex);
-        return;
-      }
-      announce('No matching card found for ' + trimmed);
-    }
-
-    async function copyUrl() {
-      const url = cardUrlHidden.textContent || '';
-      if (!url) { announce('No URL to copy'); return; }
-      try {
-        await navigator.clipboard.writeText(url);
-        announce('URL copied to clipboard');
-        copyBtn.textContent = 'Copied';
-        setTimeout(()=>copyBtn.textContent='Copy URL',1200);
-      } catch (e) {
-        const ta = document.createElement('textarea');
-        ta.value = url;
-        document.body.appendChild(ta);
-        ta.select();
-        try {
-          document.execCommand('copy');
-          announce('URL copied to clipboard (fallback)');
-        } catch (_) {
-          announce('Unable to copy automatically. Please copy manually: ' + url);
-        }
-        ta.remove();
-      }
-    }
-
-    function openUrl() {
-      const url = cardUrlHidden.textContent || '';
-      if (!url) { announce('No URL to open'); return; }
-      window.open(url,'_blank','noopener');
-      announce('Opened card URL in a new tab');
-    }
-
-    prevBtn.addEventListener('click', () => {
-      showCardByIndex(currentIndex - 1);
-    });
-    nextBtn.addEventListener('click', () => {
-      showCardByIndex(currentIndex + 1);
-    });
-    copyBtn.addEventListener('click', copyUrl);
-    openBtn.addEventListener('click', openUrl);
-    listBtn.addEventListener('click', () => {
-      announce('Available IDs: ' + ids.join(', '));
-    });
-
-    searchInput.addEventListener('keydown', (ev) => {
-      if (ev.key === 'Enter') {
-        ev.preventDefault();
-        selectByQuery(searchInput.value);
-      } else if (ev.key === 'Escape') {
-        searchInput.value = '';
-      }
-    });
-
-    document.addEventListener('keydown', (ev) => {
-      const active = document.activeElement;
-      const isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
-      if (ev.key === '/' ) {
-        ev.preventDefault();
-        searchInput.focus();
-        searchInput.select();
-        return;
-      }
-      if (isInput) return;
-      if (ev.key === 'ArrowLeft' || ev.key.toLowerCase() === 'p') {
-        ev.preventDefault();
-        showCardByIndex(currentIndex - 1);
-      } else if (ev.key === 'ArrowRight' || ev.key.toLowerCase() === 'n') {
-        ev.preventDefault();
-        showCardByIndex(currentIndex + 1);
-      } else if (ev.key.toLowerCase() === 'c') {
-        ev.preventDefault();
-        copyUrl();
-      } else if (ev.key.toLowerCase() === 'o') {
-        ev.preventDefault();
-        openUrl();
-      } else if (ev.key.toLowerCase() === 'l') {
-        ev.preventDefault();
-        announce('Available IDs: ' + ids.join(', '));
-      }
-    });
-
-    window.addEventListener('popstate', (event) => {
-      if (event.state && event.state.cardId) {
-        const idx = ids.indexOf(event.state.cardId);
-        if (idx !== -1) {
-          currentIndex = idx;
-          displayCard(cardDatabase[event.state.cardId]);
-        }
-      }
-    });
-
-    (async function init(){
-      await loadCards();
+    <!-- Firebase SDK -->
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+      import { getDatabase } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
       
-      const urlCardId = getCardIdFromUrl();
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDFhyzAg-wR3YdhFleNYSkXObT60x38uF0",
+        authDomain: "gen-lang-client-0464662946.firebaseapp.com",
+        projectId: "gen-lang-client-0464662946",
+        storageBucket: "gen-lang-client-0464662946.firebasestorage.app",
+        messagingSenderId: "737738063256",
+        appId: "1:737738063256:web:6da0e273c93beacb4dbfed",
+        databaseURL: "https://gen-lang-client-0464662946-default-rtdb.firebaseio.com"
+      };
       
-      if (urlCardId) {
-        const upperCardId = urlCardId.toUpperCase();
-        const idx = ids.indexOf(upperCardId);
-        if (idx !== -1) {
-          currentIndex = idx;
-          showCardByIndex(currentIndex);
-        } else {
-          announce(`Card ${urlCardId} not found. Showing first card.`);
-          currentIndex = 0;
-          showCardByIndex(0);
-        }
-      } else if (ids.length) {
-        currentIndex = 0;
-        showCardByIndex(0);
-      } else {
-        announce('No cards loaded.');
-      }
-    })();
-  </script>
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+      const analytics = getAnalytics(app);
+      
+      // Make Firebase available globally for app.js
+      window.firebaseApp = app;
+      window.firebaseDatabase = database;
+      
+      // Gemini API Configuration
+      window.GEMINI_API_KEY = "AIzaSyDRT_dmJb7b2aRu3gLzOIdFPjkjooUqdXQ";
+      window.GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+    </script>
+
+    <script src="app.js"></script>
+  </body>
+</html>
 </body>
 </html>
